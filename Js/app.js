@@ -110,7 +110,14 @@ var UIController = (function () {
 		},
 		clearFileds : function () {
 			var fileds ;
+			
 			fileds = document.querySelectorAll(DOMstrins.inputDescription+", "+DOMstrins.inputValue);
+
+			fileds.forEach(function (item,index,array) {
+				item.value = "";
+			});
+
+			fileds[0].focus();
 		}
 
 	};
@@ -160,6 +167,8 @@ var Controller = (function (budgetCrtl,UICrtl) {
 			newItem = budgetCrtl.addItem(input.type,input.description,input.value);
 
 			UICrtl.addListItem(newItem,input.type);
+
+			UICrtl.clearFileds();
 		};
 	}
 	
