@@ -102,8 +102,7 @@ var budgetController = (function () {
 			if (index !== -1 ) {
 				data.allItems[type].splice(index , 1)
 			};
-			console.log(data.allItems[type])
-
+	
 		},
 		getBudget: function () {
 			return {
@@ -170,8 +169,26 @@ var UIController = (function () {
 		epeneseLabel : '.budget__expenses--value',
 		percentageLabel : '.budget__expenses--percentage',
 		container : '.container',
-		expensesPercLebel : '.item__percentage'
+		expensesPercLebel : '.item__percentage',
+		dataLabel : '.budget__title--month'
 
+	}
+
+	var formatNumber = function(num,type){
+		var num,numSplit,int,dec; 
+		
+		num = Math.abs(num);	
+		num = num.toFixed(2);
+		numSplit = num.split('.');
+		int = numSplit[0];
+		dec = numSplit[1];
+	
+		if (int.length > 3)
+			int =  int.substr(0 , int.length - 3)+','+int.substr(int.length - 3,3);
+		
+			
+
+		return (type === 'exp' ? '-' : '+')+' '+int+dec ; 
 	}
 
 	return{
@@ -190,16 +207,16 @@ var UIController = (function () {
 
 			if (type === "inc") { 
 				element=DOMstrins.incomeContainer;	
-				html ='<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+				html ='<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value"> %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
 	            }
 	        else if(type === "exp"){
 	        	element=DOMstrins.expenseContainer;
-	            html ='<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+	            html ='<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value"> %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
 	        }
 
             html = html.replace("%id%", obj.id)   
 		    html = html.replace("%description%", obj.description)   
-		    html = html.replace("%value%", obj.value)
+		    html = html.replace("%value%", formatNumber(obj.value,type) )
 
 		    document.querySelector(element).insertAdjacentHTML('beforeend',html);
 		},
@@ -219,12 +236,13 @@ var UIController = (function () {
 			ele.parentNode.removeChild(ele);
 		},
 		displayBudegt : function (obj) {
-			document.querySelector(DOMstrins.budgetLabel).textContent = obj.budget ;
-			document.querySelector(DOMstrins.incomeLabel).textContent = obj.totalInc ;
-			document.querySelector(DOMstrins.epeneseLabel).textContent = obj.totalExp ;
+			var type ;
+			obj.budget > 0 ? type = 'inc' : type = 'exp';
+			document.querySelector(DOMstrins.budgetLabel).textContent = formatNumber(obj.budget,type)  ;
+			document.querySelector(DOMstrins.incomeLabel).textContent = formatNumber(obj.totalInc,'inc')  ;
+			document.querySelector(DOMstrins.epeneseLabel).textContent = formatNumber(obj.totalExp,'exp')  ;
 			
-			console.log(obj.percentage)
-
+	
 			if (obj.percentage > 0 )	
 				document.querySelector(DOMstrins.percentageLabel).textContent = (obj.percentage) + "%" ;
 			else
@@ -246,7 +264,18 @@ var UIController = (function () {
 				else 
 					currrent.textContent = "---";	
 			});
+		},
+		displayMonth : function(){
+			var now , year , month , months;
+			months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+			now = new Date();
+			year = now.getFullYear();
+			month = now.getMonth();
+			month = months[month];
+			document.querySelector(DOMstrins.dataLabel).textContent = month+' '+year ;
+		
 		}
+		
 
 	};
 })();
@@ -373,7 +402,7 @@ var Controller = (function (budgetCrtl,UICrtl) {
 				totalExp : 0 ,
 				percentage : 0
 			});	
-
+			UIController.displayMonth();
 			crtlAddItem();
 		}
 	}
